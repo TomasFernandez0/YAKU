@@ -1,16 +1,10 @@
-/*
-  This example demonstrates the ESP RainMaker with a Relay and DHT sensor.
-  It's detailed explanation video is uploaded on our YouTube channel
-  https://www.youtube.com/techiesms
-*/
-
 #include "RMaker.h"
 #include "WiFi.h"
 #include <SimpleTimer.h>
 #include "WiFiProv.h"
 #include <wifi_provisioning/manager.h>
 
-//------------------------------------------- Definicion de algunos valores por defecto -----------------------------------------------------//
+//------------------------------------------- Definicion de algunos valores por defecto -------------------------------------------//
 
 #define DEFAULT_RELAY_MODE true
 #define DEFAULT_Humidity 0
@@ -35,7 +29,7 @@ const float min_value_ldr = 0;
 const char *service_name = "PROV_12345";
 const char *pop = "1234567";
 
-//------------------------------------------- Declaracion de pines -----------------------------------------------------//
+//------------------------------------------- Declaracion de pines -------------------------------------------//
 
 static uint8_t gpio_reset = 0; //boton de resetear
 static uint8_t gpio_humidity = 35; //ADC35 para sensor de humedad
@@ -48,7 +42,7 @@ bool wifi_connected = 0;
 SimpleTimer Timer;
 SimpleTimer Water_bomb_Timer;
 
-//------------------------------------------- Declaracion de dispositivos -----------------------------------------------------//
+//------------------------------------------- Declaracion de dispositivos -------------------------------------------//
 
 static TemperatureSensor humidity("Humedad"); //Sensor de humedad 
 static TemperatureSensor ldr("LDR"); //Sensor de luminosidad
@@ -89,7 +83,7 @@ void sysProvEvent(arduino_event_t *sys_event)
   }
 }
 
-  //------------------------------------------- Callback del relay -----------------------------------------------------//
+  //------------------------------------------- Callback del relay -------------------------------------------//
 void write_callback(Device *device, Param *param, const param_val_t val, void *priv_data, write_ctx_t *ctx)
 {
   const char *device_name = device->getDeviceName();
@@ -125,14 +119,14 @@ void setup()
   pinMode(relay, OUTPUT);
   digitalWrite(relay, DEFAULT_RELAY_MODE);
 
-  //------------------------------------------- Declaracion del nodo y relay -----------------------------------------------------//
+  //------------------------------------------- Declaracion del nodo y relay -------------------------------------------//
   
   Node my_node;
   my_node = RMaker.initNode("ET.36");
   
   my_switch.addCb(write_callback); // Callback del relay
   
-  //-------------------------------------------Añadiendo dispositivos al nodo -----------------------------------------------------//
+  //------------------------------------------- Añadiendo dispositivos al nodo -------------------------------------------//
   
   my_node.addDevice(humidity);
   my_node.addDevice(ldr);
@@ -171,11 +165,6 @@ void loop()
     Timer.reset();                        // Resetar el contador
   };
 
-
-
-
-  //-----------------------------------------------------------  Logic to Reset RainMaker
-
   // Leer GPIO0 (boton externo para resetear)
   if (digitalRead(gpio_reset) == LOW) { //mantener boton presionado
     Serial.printf("Reset Button Pressed!\n");
@@ -200,11 +189,10 @@ void loop()
   delay(100);
 }
 
-
+  
 void Update_Sensor()
 {
-  
-  //------------------------------------------- Lee el valor de los dispositivos -----------------------------------------------------//
+  //------------------------------------------- Actualiza el valor de los dispositivos ------------------------------------------- //
   
   float humidity_value = analogRead(gpio_humidity);
   float ldr_value = analogRead(gpio_ldr); 
@@ -212,27 +200,33 @@ void Update_Sensor()
 
 void Send_Sensor()
 {
-  //------------------------------------------- Pasa el valor de los dispositivos a porcentaje -----------------------------------------------------//
+  //------------------------------------------- Pasa el valor de los dispositivos a porcentaje-------------------------------------------//
   
   float humidity_mapped = map(humidity_value, min_value_humidity, max_value_humidity, 100, 0); 
   float ldr_mapped =  map(ldr_value, min_value_ldr, max_value_ldr, 100, 0);
 
-  //imprimir resultados
+  
+  //------------------------------------------- Muestra por pantalla el valor del dispositivo tanto en su valor original como en su valor en porcentaje -------------------------------------------//
+  
   Serial.print("Humidity - "); Serial.print(humidity_value); Serial.print(" Humedad en %"); Serial.println(humidity_mapped);
   Serial.print("Luminosidad - "); Serial.print(ldr_value); Serial.print(" Luminosidad en %"); Serial.println(ldr_mapped);
 
-  //------------------------------------------- Envia los valores a la Rainmaker-----------------------------------------------------//
+  //------------------------------------------- Envia los valores a la Rainmaker -------------------------------------------//
   
   humidity.updateAndReportParam("Temperature", humidity_mapped);
   ldr.updateAndReportParam("Temperature", ldr_mapped);
 }
 
 
+
+  //------------------------------------------- Este metodo abre la bomba de agua durante 5s cada 12hs -------------------------------------------//
 void Regado()
 {
   if(Water_bomb_Timer.isReady()){
     if(ldr_value < 1000 && humidity_value < 2250){
       digitalWrite(relay, HIGH); relay_state = true;
+      
+      // Falta encontrar una funcion para poner los 5s, esta no puede ser delay ya que esta funcion frena el programa.
       
       digitalWrite(relay, LOW); relay_state = false;
       Update_Sensor();
