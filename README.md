@@ -8,11 +8,10 @@ el cual tiene como objetivo crear una huerta inteligente para el uso de ***Escue
   - [x] La creación del nodo no la tienen que hacer los demás, separarlo de la guía
   - [x] Si dejar la parte de cómo agregar un device al nodo.
 - [ ] Como funciona el codigo
-- [ ] Añadir links/referncias (hindú)
+- [x] Añadir links/referencias
 
 ## Como funciona el codigo
 __Completar__
-
 
 ## GUIA RAINMAKER (YAKU)
 
@@ -36,3 +35,7 @@ Utilizando el metodo addDevice() y utilizando como parametro el dispositivo crea
 Para realizar esto lo que haremos sera leer el pin al cual tenemos conectado el dispositivo y asignar este valor una variable. Luego utilizando la variable de nuestro dispositivo usaremos el metodo updateAndReportParam() el cual tiene como parametros el tipo de sensor que es (En este caso es Temperature) y el valor que le queramos subir.
 
 ![update_value](docs/update_value_device.png)
+
+
+## Referencias utilizadas en el proyecto
+- https://www.youtube.com/watch?v=651EoGQHWck
