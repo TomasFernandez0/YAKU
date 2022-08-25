@@ -15,6 +15,11 @@
 #define DEFAULT_RELAY_MODE true
 #define DEFAULT_Humidity 0
 
+const int tiempo_12hs = (60*12)*60000;
+
+float humidity_value;
+float ldr_value;
+
 // Valores del sensor de humedad
 
 const float max_value_humidity = 3500;
@@ -41,6 +46,7 @@ bool relay_state = true;
 bool wifi_connected = 0;
 
 SimpleTimer Timer;
+SimpleTimer Water_bomb_Timer;
 
 //------------------------------------------- Declaracion de dispositivos -----------------------------------------------------//
 
@@ -142,6 +148,8 @@ void setup()
 
   //Intervalo de tiempo para enviar los datos del sensor
   Timer.setInterval(3000);
+  Water_bomb_Timer.setInterval(tiempo_12hs);
+  
   WiFi.onEvent(sysProvEvent);
 
 #if CONFIG_IDF_TARGET_ESP32
@@ -157,7 +165,9 @@ void loop()
 {
   if (Timer.isReady() && wifi_connected) { // Chequea si el contador termino
     Serial.println("Sending Sensor's Data");
+    Update_Sensor();
     Send_Sensor();
+    Regado();
     Timer.reset();                        // Resetar el contador
   };
 
@@ -190,13 +200,18 @@ void loop()
   delay(100);
 }
 
-void Send_Sensor()
+
+void Update_Sensor()
 {
+  
   //------------------------------------------- Lee el valor de los dispositivos -----------------------------------------------------//
   
   float humidity_value = analogRead(gpio_humidity);
   float ldr_value = analogRead(gpio_ldr); 
+}
 
+void Send_Sensor()
+{
   //------------------------------------------- Pasa el valor de los dispositivos a porcentaje -----------------------------------------------------//
   
   float humidity_mapped = map(humidity_value, min_value_humidity, max_value_humidity, 100, 0); 
@@ -210,4 +225,19 @@ void Send_Sensor()
   
   humidity.updateAndReportParam("Temperature", humidity_mapped);
   ldr.updateAndReportParam("Temperature", ldr_mapped);
+}
+
+
+void Regado()
+{
+  if(Water_bomb_Timer.isReady()){
+    if(ldr_value < 1000 && humidity_value < 2250){
+      digitalWrite(relay, HIGH); relay_state = true;
+      
+      digitalWrite(relay, LOW); relay_state = false;
+      Update_Sensor();
+    }
+    Water_bomb_Timer.reset();
+  }
+  
 }
