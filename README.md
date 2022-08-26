@@ -1,4 +1,4 @@
-# YAKU esp32 rainmaker
+# YAKU
 Este codigo es parte de un proyecto llamado **Yaku** de los estudiantes de la ***ET36 D.E. 15***,
 el cual tiene como objetivo crear una huerta inteligente para el uso de ***Escuela de Discapacitados Motores Nº 1 D.E 15.***
 
