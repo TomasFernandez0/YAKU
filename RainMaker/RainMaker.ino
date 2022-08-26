@@ -84,6 +84,7 @@ void sysProvEvent(arduino_event_t *sys_event)
 }
 
   //------------------------------------------- Callback del relay -------------------------------------------//
+
 void write_callback(Device *device, Param *param, const param_val_t val, void *priv_data, write_ctx_t *ctx)
 {
   const char *device_name = device->getDeviceName();
@@ -162,7 +163,7 @@ void loop()
     Update_Sensor();
     Send_Sensor();
     Regado();
-    Timer.reset();                        // Resetar el contador
+    Timer.reset(); // Resetar el contador
   };
 
   // Leer GPIO0 (boton externo para resetear)
@@ -217,11 +218,9 @@ void Send_Sensor()
   ldr.updateAndReportParam("Temperature", ldr_mapped);
 }
 
-
-
-  //------------------------------------------- Este metodo abre la bomba de agua durante 5s cada 12hs -------------------------------------------//
 void Regado()
 {
+  //------------------------------------------- Este metodo abre la bomba de agua durante 5s cada 12hs -------------------------------------------//
   if(Water_bomb_Timer.isReady()){
     if(ldr_value < 1000 && humidity_value < 2250){
       digitalWrite(relay, HIGH); relay_state = true;
