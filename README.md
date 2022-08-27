@@ -20,7 +20,9 @@ Paso a paso de como crear un dispositivo, añadirlo a un nodo y como subir los d
 ### Paso 1: Crear sensor dentro del código.
 Escribir una variable del tipo del sensor* (de ahora en más llamaremos a estos **DISPOSITIVOS**) seguido del nombre que le quieras atribuir a este dentro del código además del nombre dentro de la app. Esto se definiría de la siguiente manera:
 
-![device_definition](docs/device_definition.png)
+```bash
+  static TemperatureSensor humidity("Humidity"); 
+```
 
 En este caso estamos creando un dispositivo de temperatura (Ya que Rainmaker no tiene de humedad), con el nombre **humidity** tanto dentro del codigo como en la app.
 
@@ -29,13 +31,17 @@ En este caso estamos creando un dispositivo de temperatura (Ya que Rainmaker no 
 ### Paso 2: Agregar nuestro dispositivo al nodo
 Utilizando el metodo addDevice() y utilizando como parametro el dispositivo creado anteriormente (Este paso se tiene que realizar con cada dispositivo que creemos).
 
-![add_device](docs/add_device.png)
+```bash
+  my_node.addDevice(humidity);
+```
 
 ### Paso 3: Leer los datos de los dispositivos y subirlos a la app de RainMaker.
 Para realizar esto lo que haremos sera leer el pin al cual tenemos conectado el dispositivo y asignar este valor una variable. Luego utilizando la variable de nuestro dispositivo usaremos el metodo updateAndReportParam() el cual tiene como parametros el tipo de sensor que es (En este caso es Temperature) y el valor que le queramos subir.
 
-![update_value](docs/update_value_device.png)
-
+```bash
+  float sensor_value = analogRead(gpio_humidity);
+  humidity.updateAndReportParam("Temperature", sensor_value);
+```
 
 ## Referencias utilizadas en el proyecto
 - https://www.youtube.com/watch?v=651EoGQHWck
