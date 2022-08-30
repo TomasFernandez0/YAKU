@@ -45,3 +45,7 @@ Para realizar esto lo que haremos sera leer el pin al cual tenemos conectado el 
 
 ## Referencias utilizadas en el proyecto
 - https://www.youtube.com/watch?v=651EoGQHWck
+
+
+### Recordar
+- constrain()
