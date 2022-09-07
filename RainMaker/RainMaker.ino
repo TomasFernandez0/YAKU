@@ -16,12 +16,12 @@ float ldr_value;
 
 // Valores del sensor de humedad
 
-const float max_value_humidity = 3500;
-const float min_value_humidity = 0; 
+const float max_value_humidity = 550;
+const float min_value_humidity = 250; 
 
 // Valores del sensor ldr
 
-const float max_value_ldr = 3000;
+const float max_value_ldr = 1023;
 const float min_value_ldr = 0;
 
 // BLE Credentils
@@ -41,6 +41,7 @@ bool wifi_connected = 0;
 
 SimpleTimer Timer;
 SimpleTimer Water_bomb_Timer;
+SimpleTimer delay_5s;
 
 //------------------------------------------- Declaracion de dispositivos -------------------------------------------//
 
@@ -160,7 +161,7 @@ void loop()
 {
   if (Timer.isReady() && wifi_connected) { // Chequea si el contador termino
     Serial.println("Sending Sensor's Data");
-    Update_Sensor();
+    //float humidity, ldr = Update_Sensor();
     Send_Sensor();
     Regado();
     Timer.reset(); // Resetar el contador
@@ -190,27 +191,27 @@ void loop()
   delay(100);
 }
 
-  
-void Update_Sensor()
+/*float Update_Sensor()
 {
   //------------------------------------------- Actualiza el valor de los dispositivos ------------------------------------------- //
-  
   float humidity_value = analogRead(gpio_humidity);
-  float ldr_value = analogRead(gpio_ldr); 
-}
+  float ldr_value = analogRead(gpio_ldr);
+
+  return humidity_value, ldr_value;
+}*/
 
 void Send_Sensor()
 {
   //------------------------------------------- Pasa el valor de los dispositivos a porcentaje-------------------------------------------//
   
-  float humidity_mapped = map(humidity_value, min_value_humidity, max_value_humidity, 100, 0); 
-  float ldr_mapped =  map(ldr_value, min_value_ldr, max_value_ldr, 100, 0);
+  float humidity_mapped = map(analogRead(gpio_humidity), min_value_humidity, max_value_humidity, 100, 0); 
+  float ldr_mapped =  map(analogRead(gpio_ldr), min_value_ldr, max_value_ldr, 100, 0);
 
   
   //------------------------------------------- Muestra por pantalla el valor del dispositivo tanto en su valor original como en su valor en porcentaje -------------------------------------------//
   
-  Serial.print("Humidity - "); Serial.print(humidity_value); Serial.print(" Humedad en %"); Serial.println(humidity_mapped);
-  Serial.print("Luminosidad - "); Serial.print(ldr_value); Serial.print(" Luminosidad en %"); Serial.println(ldr_mapped);
+  Serial.print("Humidity - "); Serial.print(analogRead(gpio_humidity)); Serial.print(" Humedad en %"); Serial.println(humidity_mapped);
+  Serial.print("Luminosidad - "); Serial.print(analogRead(gpio_ldr)); Serial.print(" Luminosidad en %"); Serial.println(ldr_mapped);
 
   //------------------------------------------- Envia los valores a la Rainmaker -------------------------------------------//
   
@@ -222,13 +223,17 @@ void Regado()
 {
   //------------------------------------------- Este metodo abre la bomba de agua durante 5s cada 12hs -------------------------------------------//
   if(Water_bomb_Timer.isReady()){
-    if(ldr_value < 1000 && humidity_value < 2250){
+    if(analogRead(gpio_ldr) > 1000 && analogRead(gpio_humidity) < 250){
+      delay_5s.setInterval(5000);
       digitalWrite(relay, HIGH); relay_state = true;
+      Serial.println("REGO");
+      if(delay_5s.isReady()){
+        Serial.println("Dejo de regar");
+        digitalWrite(relay, LOW); relay_state = false;
+        delay_5s.reset();
+      }
+    
       
-      // Falta encontrar una funcion para poner los 5s, esta no puede ser delay ya que esta funcion frena el programa.
-      
-      digitalWrite(relay, LOW); relay_state = false;
-      Update_Sensor();
     }
     Water_bomb_Timer.reset();
   }
