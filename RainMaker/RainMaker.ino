@@ -191,15 +191,6 @@ void loop()
   delay(100);
 }
 
-/*float Update_Sensor()
-{
-  //------------------------------------------- Actualiza el valor de los dispositivos ------------------------------------------- //
-  float humidity_value = analogRead(gpio_humidity);
-  float ldr_value = analogRead(gpio_ldr);
-
-  return humidity_value, ldr_value;
-}*/
-
 void Send_Sensor()
 {
   //------------------------------------------- Pasa el valor de los dispositivos a porcentaje-------------------------------------------//
@@ -222,6 +213,7 @@ void Send_Sensor()
 void Regado()
 {
   //------------------------------------------- Este metodo abre la bomba de agua durante 5s cada 12hs -------------------------------------------//
+  
   if(Water_bomb_Timer.isReady()){
     if(analogRead(gpio_ldr) > 1000 && analogRead(gpio_humidity) < 250){
       delay_5s.setInterval(5000);
@@ -232,8 +224,6 @@ void Regado()
         digitalWrite(relay, LOW); relay_state = false;
         delay_5s.reset();
       }
-    
-      
     }
     Water_bomb_Timer.reset();
   }
